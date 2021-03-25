@@ -4,7 +4,8 @@
     "toolchain": "@exalt/toolchain",
     "toolchainOptions": {
         "paths": {
-            "@components": "src/components"
+            "@components": "src/components",
+            "@services": "src/services"
         }
     }
 }

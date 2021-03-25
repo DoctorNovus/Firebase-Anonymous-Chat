@@ -1,7 +1,6 @@
 import { Component, html } from "@exalt/core";
 
-import firebase from "firebase/app";
-import "firebase/auth";
+import { AuthManager } from "../../services/AuthManager";
 
 import style from "./login-panel.css";
 
@@ -27,15 +26,9 @@ export class LoginPanel extends Component {
         let email = this.root.querySelector("#email");
         let pass = this.root.querySelector("#pass");
 
-        firebase.auth().signInWithEmailAndPassword(email.value, pass.value)
-            .then((userCredential) => {
-                let user = userCredential.user;
-
-                this.success.user = user;
-                this.dispatchEvent(this.success);
-
-                this.state.name = user.email;
-            });
+        let user = AuthManager.login(email.value, pass.value);
+        this.success.user = user;
+        this.dispatchEvent(this.success);
     }
 }
 

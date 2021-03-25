@@ -5,6 +5,8 @@ var bundle = (function (exports) {
 
     const S=/<([a-z]+-[a-z]+)([^/>]*)\/>/g;function E(e,t){let r=[];return {source:e.reduce((i,n,u)=>{var f;const a=(f=t[u])!=null?f:"";let p;if(p=n.match(/ ([A-Za-z]*)=$/))return r.push({name:p[1],value:a}),i+n+'"{{a}}"';if(b(a))return r=r.concat(a.data),i+n+a.source;if(R(a)){let l="";for(let c of a)r=r.concat(c.data),l+=c.source;return i+n+l}else if(Array.isArray(a)){let l="";for(let c of a)l+=c;return i+n+l}else return i+n+a},"").replace(S,"<$1$2></$1>"),data:r}}function O({source:e,data:t}){var r,s;const i=document.createElement("template");i.innerHTML=e;const n=document.createTreeWalker(i.content,1);let u,f=0;for(;u=n.nextNode();)if(u.hasAttributes()){const a=u.attributes,p=a.length-1;for(let l=p;l>=0;--l){const c=a[l];if(c.value=="{{a}}"){const h=t[f++];h.name.startsWith("on")?(u.addEventListener(h.name.slice(2),h.value),u.removeAttribute(h.name)):(u.props=(r=u.props)!=null?r:{},u.props[h.name]=h.value,typeof h.value!="string"&&u.removeAttribute(h.name));}else u.props=(s=u.props)!=null?s:{},u.props[c.localName]=c.value;}}return i.content}function b(e){return typeof e=="object"&&e.source&&e.data}function R(e){return Array.isArray(e)&&b(e[0])}class U{set(t){this.prototype=Object.assign(this,t);}}function o(e,t){const r=new Proxy(new U,v(t));return r.set(e),r}function V(e,t){return new Proxy(e,v(t,!0))}function v(e,t=!1){return {set:(r,s,i)=>s=="prototype"||r[s]==i?!0:r[s]!=null?(r[s]=i,e(s,i),!0):Array.isArray(i)?(r[s]=V(i,e),!0):(r[s]=i,t&&e(s,i),!0)}}function y(e,t,r={}){e=e!=null?e:{source:"",data:[]},r.styles&&(e.source+=`<style>${r.styles}</style>`);const s=O(e);if(t.childElementCount==0){t.appendChild(s);return}_(s,t),C(s,t);}function m(e,t){return t?e?e.tagName!=t.tagName?e:(_(e,t),!e.shadowRoot&&e.childNodes.length>0&&C(e,t),t):null:e}function _(e,t){let r=e.nodeType,s=e.nodeName;r==1?(x(e,t),j(e,t)):(r==3||r==8)&&t.nodeValue!=e.nodeValue&&(t.nodeValue=e.nodeValue),s=="INPUT"?P(e,t):s=="OPTION"?A(e,t,"selected"):s=="TEXTAREA"&&q(e,t);}function x(e,t){const r=e.attributes,s=t.attributes;let i=r.length-1;for(let n=i;n>=0;--n){const{localName:u,value:f,namespaceURI:a}=r[n];a?t.getAttributeNS(a,u)==f&&t.setAttributeNS(a,u,f):t.hasAttribute(u)?t.getAttribute(u)!=f&&(f=="null"||f=="undefined"?t.removeAttribute(u):t.setAttribute(u,f)):t.setAttribute(u,f);}i=s.length-1;for(let n=i;n>=0;--n){const u=s[n];if(u.specified){const{localName:f,namespaceURI:a}=u;a?e.hasAttributeNS(a,f)||t.removeAttributeNS(a,f):e.hasAttribute(f)||t.removeAttribute(f);}}}function j(e,t){const r=e.props,s=t.props;if(r&&s){const i=Object.keys(r);for(let n of i)s[n]!=r[n]&&(t.props[n]=r[n]);}}function C(e,t){let r=0;for(let s=0;;s++){const i=t.childNodes[s],n=e.childNodes[s-r];if(!i&&!n)break;if(!n)t.removeChild(i),s--;else if(!i)t.appendChild(n),r++;else if(T(n,i)){const u=m(n,i);u!=i&&(t.replaceChild(u,i),r++);}else {let u=null;const f=t.childNodes.length;for(let a=s;a<f;a++)if(T(t.childNodes[a],n)){u=t.childNodes[s];break}if(u){const a=m(n,i);a!=u&&(t.replaceChild(a,i),r++);}else if(!n.id&&!i.id){const a=m(n,i);a!=i&&(t.replaceChild(a,i),r++);}else t.insertBefore(n,i),r++;}}}function A(e,t,r){e[r]!=t[r]&&(t[r]=e[r],e[r]?t.setAttribute(r,""):t.removeAttribute(r));}function P(e,t){const r=e.value,s=t.value;A(e,t,"checked"),A(e,t,"disabled"),e.indeterminate!=t.indeterminate&&(t.indeterminate=e.indeterminate),t.type!="file"&&(r!=s&&(t.setAttribute("value",r),t.value=r),r=="null"&&(t.value="",t.removeAttribute("value")),e.hasAttribute("value")?t.type=="range"&&t.value==r:t.removeAttribute("value"));}function q(e,t){const r=e.value;r!=t.value&&(t.value=r),t.firstChild&&t.firstChild.nodeValue!=r&&(t.firstChild.nodeValue=r);}function T(e,t){return e.id?e.id==t.id:e.tagName!=t.tagName?!1:e.nodeType==3?e.nodeValue==t.nodeValue:!1}var g=Object.assign;class I extends HTMLElement{constructor(){super();const{useShadow:t,styles:r}=this.constructor._options;this._styles=r.join(""),this._refCount=0,this.root=t?this.attachShadow({mode:"open"}):this;}connectedCallback(){this.props=o(this.props,this._requestUpdate()),this.state&&(this.state=o(this.state,this._requestUpdate())),y(this.render(this.props),this.root,{styles:this._styles}),this._parseRefs(),this.mount();}disconnectedCallback(){this.unmount();}_requestUpdate(){return (t,r)=>{this.shouldUpdate(t,r)&&(y(this.render(this.props),this.root,{styles:this._styles}),this._parseRefs(),this.onUpdate(t,r));}}_parseRefs(){this._refCount>0&&this.root.querySelectorAll("[ref]").forEach(t=>{this[t.getAttribute("ref")]=t,t.removeAttribute("ref");});}createRef(){return this._refCount++,null}useContext(t){t._components.push(this._requestUpdate());}render(){}mount(){}unmount(){}onUpdate(){}shouldUpdate(){return !0}static create(t,r){const s={styles:[],useShadow:!0};if(r._options=g(g({},s),t),!t.name){console.error("Exalt: ComponentOptions.name is required.");return}window.customElements.define(t.name,r);}}function L(e,...t){return E(e,t)}
 
+    var style$2 = "*[inactive] {\n    display: none;\n}\n\n.megaPosts {\n    display: grid;\n    grid-template-columns: 20% 20% 20% 20% 20%;\n}\n\n[invisible] {\n    display: none;\n}";
+
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
 
@@ -8605,9 +8607,71 @@ var bundle = (function (exports) {
     }
     registerStorage(firebase$1);
 
-    var style$2 = "*[inactive] {\n    display: none;\n}\n\n.megaPosts {\n    display: grid;\n    grid-template-columns: 20% 20% 20% 20% 20%;\n}\n";
-
     var style$1 = ":root {\n    --main-background: rgb(0, 0, 0);\n    --secondary-background: rgb(39, 39, 39);\n}\n\n.userPost {\n    width: auto;\n    margin: 0%;\n    padding: 0%;\n}\n\n.post {\n    background-color: rgb(25, 25, 25);\n    color: white;\n    margin: 5px;\n    width: fit-content;\n    padding: 5px;\n    border: 1px solid white;\n}\n\n.user {\n    display: flex;\n    flex-direction: column;\n    background-color: rgb(40, 40, 40);\n}\n\n.user * {\n    margin: 0%;\n    padding: 0%;\n}\n\n.content p {\n    margin: 0%;\n    padding: 0%;\n}\n\n.comments[visible]{\n    display: flex;\n    flex-direction: column;\n}\n\n.comments[invisible] {\n    display: none;\n}\n\n.comments p {\n    color: white;\n}\n\n.userComment {\n    display: flex;\n    flex-direction: column;\n    background-color: rgb(40, 40, 40);\n    margin: 7.5px;\n    padding: 7.5px;\n    border: 1px solid white;\n    width: fit-content\n}\n\n.userComment * {\n    margin: 0%;\n    padding: 0%;\n}\n\n.commentInput {\n    background-color: rgb(30, 30, 30);\n    width: fit-content;\n    word-wrap: normal;\n    margin: 8px;\n    padding: 7.5px;\n    color: white;\n}\n\n.commentInput::placeholder {\n    color: white;\n}\n\n.bind {\n    display: grid;\n    grid-template-columns: 10% 80% 10%;\n}\n\n.red {\n    color: red;\n}\n\n[invisible] {\n    display: none;\n}\n\n.userInput {\n    display: flex;\n    flex-direction: column;\n    width: fit-content;\n}\n\n.userInput input, .userInput input::placeholder, .userInput button {\n    color: white;\n}\n\n.userInput input, .userInput button {\n    background-color: transparent;\n}";
+
+    class DBManager {
+      static get(path) {
+        return new Promise((resolve, reject) => {
+          let posts = refer.child(path);
+          posts.getDownloadURL().then((url) => {
+            fetch(url).then((res) => res.text()).then((data) => {
+              if (data.length <= 0)
+                return;
+              try {
+                data = JSON.parse(data);
+                resolve(data);
+              } catch (e) {
+                console.log(e);
+              }
+            });
+          }).catch((error) => {
+            reject(error);
+          });
+        });
+      }
+      static remove(path, posts, post) {
+        for (let i = 0; i < posts.length; i++) {
+          if (posts[i].name == post.name && posts[i].timestamp.toString() == post.timestamp.toString()) {
+            posts.splice(i, 1);
+          }
+        }
+        DBManager.set(path, posts);
+      }
+      static add(path, posts, post) {
+        posts.push(post);
+        DBManager.set(path, posts);
+      }
+      static set(path, posts) {
+        if (!Array.isArray(posts))
+          posts = [posts];
+        refer.child(path).putString(JSON.stringify(posts, 4, null));
+      }
+      static approveComment(path, posts, post, comment) {
+        if (!post.unauthcomments)
+          post.unauthcomments = [];
+        let newPost = posts.find((p) => p.name == post.name && p.timestamp.toString() == post.timestamp.toString());
+        if (!newPost.comments)
+          newPost.comments = [];
+        newPost.comments.push(comment);
+        if (post.unauthcomments)
+          for (let i = 0; i < post.unauthcomments.length; i++) {
+            if (post.unauthcomments[i].name == comment.name && post.unauthcomments[i].timestamp.toString() == comment.timestamp.toString())
+              post.unauthcomments.splice(i, 1);
+          }
+        DBManager.set(path, post);
+      }
+      static removeComment(path, posts, post, comment) {
+        if (!post.unauthcomments)
+          post.unauthcomments = [];
+        posts.find((p) => p.name == post.name && p.timestamp.toSTring() == post.timestamp.toString());
+        if (post.unauthcomments)
+          for (let i = 0; i < post.unauthcomments.length; i++) {
+            if (post.unauthcomments[i].name == comment.name && post.unauthcomments[i].timestamp.toString() == comment.timestamp.toString())
+              post.unauthcomments.splice(i, 1);
+          }
+        DBManager.set(path, posts);
+      }
+    }
 
     var __defProp$2 = Object.defineProperty;
     var __publicField$2 = (obj, key, value) => {
@@ -8625,15 +8689,22 @@ var bundle = (function (exports) {
         __publicField$2(this, "finished", new Event("finished"));
         __publicField$2(this, "authorized", new Event("authorized"));
         __publicField$2(this, "delete", new Event("delete"));
+        __publicField$2(this, "state", {
+          mode: "main"
+        });
       }
       render({post, active, type = "regular"}) {
+        this.post = post;
         if (type == "catalog")
           return L`
             <div class="userInput">
                 <input id="nameForPost" placeholder="Name for Post" />
                 <input type="text" placeholder="Enter content" id="contentForPost" />
                 <button onclick=${() => {
-        this.finished.post = {name: this.root.querySelector("#nameForPost").value, content: this.root.querySelector("#contentForPost").value};
+        this.finished.post = {
+          name: this.root.querySelector("#nameForPost").value,
+          content: this.root.querySelector("#contentForPost").value
+        };
         this.dispatchEvent(this.finished);
       }}>Send</button>
             </div>
@@ -8647,10 +8718,11 @@ var bundle = (function (exports) {
                         <div class="bind">
                             <h2>${post.name}</h2>
                             <span> </span>
-                            <h2 ${active ? "visible" : "invisible"} class="red" onclick=${() => this.dispatchEvent(this.exit)}>X</h2>
-                            ${active ? this.checkDelete() : ""}
+                            <h2 ${active ? "visible" : "invisible"} class="red" onclick=${() => this.dispatchEvent(this.exit)}>X
+                            </h2>
                         </div>
                         <p>${new Date(post.timestamp).toUTCString()}</p>
+                        <button ${this.props.staff == "authorized" ? "visible" : "invisible"} onclick=${() => this.dispatchEvent(this.delete)}>Delete</button>
                     </div>
                     <div class="content">
                         <p>${active ? post.content : post.shortDescription || post.content ? post.content.substr(0, 20) + "..." : "No description"}</p>
@@ -8663,9 +8735,16 @@ var bundle = (function (exports) {
             </div>
         `;
       }
+      setMode(mode) {
+        this.state.mode = mode;
+      }
       sortPosts(post) {
+        if (!post.unauthcomments)
+          post.unauthcomments = [];
         return L`
             ${post.comments ? post.comments.map((c) => this.renderComment(c)) : ""}
+            <div>-----</div>
+            ${this.props.staff == "authorized" ? post.unauthcomments ? post.unauthcomments.map((c) => this.renderComment(c, "auth")) : "" : ""}
             ${this.getNewCommentInput()}
         `;
       }
@@ -8699,30 +8778,30 @@ var bundle = (function (exports) {
             `;
         }
       }
-      renderComment(comment) {
+      renderComment(comment, auth) {
         return L`
             <div class="userComment">
                 <p>${new Date(comment.timestamp).toUTCString()}</p>
                 <p>${comment.content}</p>
+                <div ${auth == "auth" ? "visible" : "invisible"} class="buttons">
+                    <button onclick=${() => DBManager.removeComment("queueMessages.json", this.props.posts, this.post, comment)}>Deny</button>
+                    <button onclick=${() => DBManager.approveComment("messages.json", this.props.posts, this.post, comment)}>Approve</button>
+                </div>
             </div>
         `;
       }
       getNewCommentInput() {
         return L`
-            <input class="commentInput" id="newComment" placeholder="Enter comment" onchange=${() => {
-      this.props.posts.find((p) => p == this.props.post).comments = this.props.posts.find((p) => p == this.props.post).comments || [];
-      this.props.posts.find((p) => p == this.props.post).comments.push({
-        timestamp: new Date(),
-        content: this.root.querySelector("#newComment").value
-      });
-      this.posts = this.props.posts;
-    }} />
+            <input class="commentInput" id="newComment" placeholder="Enter comment" onchange=${() => this.onInput()} />
         `;
       }
-      set posts(post) {
-        let posts = this.refer.child("queueMessages.json");
-        posts.putString(JSON.stringify(post, 4, null));
-        window.location.reload();
+      onInput() {
+        this.props.posts.find((p) => p == this.props.post).unauthcomments = this.props.posts.find((p) => p == this.props.post).unauthcomments || [];
+        this.props.posts.find((p) => p == this.props.post).unauthcomments.push({
+          timestamp: new Date(),
+          content: this.root.querySelector("#newComment").value
+        });
+        DBManager.set("queueMessages.json", this.props.posts);
       }
     }
     I.create({name: "forum-post", styles: [style$1]}, ForumPost);
@@ -8738,13 +8817,13 @@ var bundle = (function (exports) {
     class PostDisplay extends I {
       constructor() {
         super(...arguments);
-        __publicField$1(this, "refer", firebase$1.storage().ref());
         __publicField$1(this, "mode", "regular");
         __publicField$1(this, "state", {
           activePost: {name: "Template", timestamp: new Date(), content: "Template Message"},
           posts: [],
           secondPosts: [],
-          user: ""
+          user: "",
+          mode: "main"
         });
       }
       render() {
@@ -8752,107 +8831,65 @@ var bundle = (function (exports) {
         if (this.state.user != "")
           staff = "authorized";
         return L`
-            <div ${this.state.activePost.name != "Template" ? "" : "inactive"} id="display-post">
-                <forum-post ondelete=${() => this.deletePost()} staff=${staff} onauthorized=${(e) => this.authorizePost(e)}
-                    posts=${this.state.posts} active="true"
-                    post=${this.state.activePost} onexit=${() => this.state.activePost = {name: "Template", timestamp: new Date(), content: "Template Message"}} />
-            </div>
-            <div ${this.state.activePost.name != "Template" ? "inactive" : ""} id="display-posts">
-                ${this.createCatalog()}
-            </div>
+        <div class="switcher">
+            <button ${staff == "authorized" ? "" : "invisible"} onclick=${() => {
+      this.state.mode = this.state.mode == "main" ? "backend" : "main";
+      this.getPosts();
+    }}>Switch to ${this.state.mode == "main" ? "Backend" : "Main"}</button>
+        </div>
+        <div ${this.state.activePost.name != "Template" ? "" : "inactive"} id="display-post">
+            <forum-post id="main" ondelete=${() => DBManager.remove(this.state.mode == "main" ? "messages.json" : "queueMessages.json", this.state.posts, this.state.activePost)} staff=${staff} onauthorized=${(e) => this.authorizePost(e)} posts=${this.state.posts} active="true" post=${this.state.activePost} onexit=${() => this.state.activePost = {name: "Template", timestamp: new Date(), content: "Template Message"}} />
+        </div>
+        <div ${this.state.activePost.name != "Template" ? "inactive" : ""} id="display-posts">
+            ${this.createCatalog()}
+        </div>
         `;
+      }
+      getPosts(path, callback) {
+        DBManager.get(`${path || this.state.mode == "main" ? "messages.json" : "queueMessages.json"}`).then((posts) => {
+          this.state.posts = posts;
+          if (callback)
+            callback(posts);
+        });
       }
       mount() {
         this.getPosts();
       }
+      onUpdate() {
+        this.root.querySelector("#main").setMode(this.state.mode);
+      }
       setUser(user) {
         this.state.user = user;
-        this.getPosts();
-      }
-      deletePost() {
-        for (let i = 0; i < this.state.posts.length; i++) {
-          if (this.state.posts[i] == this.state.activePost) {
-            this.state.posts.splice(i, 1);
-          }
-        }
-        this.mode = "regular";
-        this.posts = this.state.posts;
       }
       createCatalog() {
         return L`
             <div class="megaPosts">
                 ${this.state.posts.map((p) => this.createPost(p))}
             </div>
-            <forum-post type="catalog" onfinished=${(post) => {
-      post.post.timestamp = new Date();
-      this.state.posts.push(post.post);
-      this.posts = this.state.posts;
-    }} />
+            <forum-post type="catalog" onfinished=${(post) => this.finish(post)} />
         `;
+      }
+      finish(post) {
+        post = post.post;
+        post.timestamp = new Date();
+        DBManager.add("queueMessages.json", this.state.posts, post);
       }
       authorizePost(e) {
         if (e.toggle == true) {
-          this.getPosts(true);
+          this.getPosts("messages.json", (posts) => {
+            DBManager.add("messages.json", posts, this.state.activePost);
+          });
+          this.getPosts("queueMessages.json", (posts) => {
+            DBManager.remove("queueMessages.json", posts, this.state.activePost);
+          });
         } else {
-          for (let i = 0; i < this.state.posts.length; i++) {
-            if (this.state.posts[i].name == this.state.activePost.name && this.state.posts[i].timestamp.toString() == this.state.activePost.timestamp.toString()) {
-              this.state.posts.splice(i, 1);
-            }
-          }
-          this.mode = "auth";
-          this.posts = this.state.posts;
+          DBManager.remove("queueMessages.json", this.state.posts, this.state.activePost);
         }
-      }
-      authTwo() {
-        console.log(this.state.activePost);
-        this.state.secondPosts.push(this.state.activePost);
-        this.mode = "regular";
-        this.posts = this.state.secondPosts;
-        for (let i = 0; i < this.state.posts.length; i++) {
-          if (this.state.posts[i].name == this.state.activePost.name && this.state.posts[i].timestamp.toString() == this.state.activePost.timestamp.toString()) {
-            this.state.posts.splice(i, 1);
-          }
-        }
-        this.mode = "auth";
-        this.posts = this.state.posts;
       }
       createPost(post) {
         return L`
             <forum-post onclick=${() => this.state.activePost = post} post=${post} />
         `;
-      }
-      getPosts(second = false) {
-        let getter = "messages.json";
-        if (this.state.user != "")
-          getter = "queueMessages.json";
-        if (second)
-          getter = "messages.json";
-        let posts = this.refer.child(getter);
-        posts.getDownloadURL().then((url) => {
-          fetch(url).then((res) => res.text()).then((data) => {
-            if (data.length <= 0)
-              return;
-            try {
-              data = JSON.parse(data);
-              if (second) {
-                this.state.secondPosts = data;
-                this.authTwo();
-              } else
-                this.state.posts = data;
-            } catch (e) {
-              console.log(e);
-            }
-          });
-        }).catch((error) => {
-          console.log(error);
-        });
-      }
-      set posts(post) {
-        let getter = "queueMessages.json";
-        if (this.state.user != "" && this.mode == "regular")
-          getter = "messages.json";
-        let posts = this.refer.child(getter);
-        posts.putString(JSON.stringify(post, 4, null));
       }
     }
     I.create({name: "post-display", styles: [style$2]}, PostDisplay);
@@ -9241,6 +9278,17 @@ var bundle = (function (exports) {
     Z(a,"OAuthProvider",Pg,[V("providerId")]);Z(a,"SAMLAuthProvider",Og,[V("providerId")]);Z(a,"PhoneAuthProvider",lh,[Ao()]);Z(a,"RecaptchaVerifier",to,[X(V(),zo(),"recaptchaContainer"),W("recaptchaParameters",!0),Bo()]);Z(a,"ActionCodeURL",Jf,[]);Z(a,"PhoneMultiFactorGenerator",co,[]);firebase$1.INTERNAL.registerComponent({name:"auth",instanceFactory:function(b){b=b.getProvider("app").getImmediate();return new En(b)},multipleInstances:!1,serviceProps:a,instantiationMode:"LAZY",type:"PUBLIC"});firebase$1.INTERNAL.registerComponent({name:"auth-internal",
     instanceFactory:function(b){b=b.getProvider("auth").getImmediate();return {getUid:q(b.getUid,b),getToken:q(b.nc,b),addAuthTokenListener:q(b.cc,b),removeAuthTokenListener:q(b.Pc,b)}},multipleInstances:!1,instantiationMode:"LAZY",type:"PRIVATE"});firebase$1.registerVersion("@firebase/auth","0.16.4");firebase$1.INTERNAL.extendNamespace({User:Im});}else throw Error("Cannot find the firebase namespace; be sure to include firebase-app.js before this library.");})();}).apply(typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : {});
 
+    class AuthManager {
+      static login(email, password) {
+        return new Promise((resolve, reject) => {
+          firebase$1.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
+            let user = userCredential.user;
+            resolve(user);
+          }).catch(reject);
+        });
+      }
+    }
+
     var style = ":host {\n    display: grid;\n    grid-template-columns: auto 30vw;\n    color: white;\n    background-color: rgba(0, 0, 0, 0.31);\n    padding: 5px;\n}\n\n#login input {\n    width: 10vw;\n}\n\n#login button {\n    width: 7.5vw;\n}";
 
     var __defProp = Object.defineProperty;
@@ -9272,12 +9320,9 @@ var bundle = (function (exports) {
       login() {
         let email = this.root.querySelector("#email");
         let pass = this.root.querySelector("#pass");
-        firebase$1.auth().signInWithEmailAndPassword(email.value, pass.value).then((userCredential) => {
-          let user = userCredential.user;
-          this.success.user = user;
-          this.dispatchEvent(this.success);
-          this.state.name = user.email;
-        });
+        let user = AuthManager.login(email.value, pass.value);
+        this.success.user = user;
+        this.dispatchEvent(this.success);
       }
     }
     I.create({name: "login-panel", styles: [style]}, LoginPanel);
@@ -9292,6 +9337,7 @@ var bundle = (function (exports) {
       measurementId: "G-MPGMXMLP0K"
     };
     firebase$1.initializeApp(firebaseConfig);
+    window.refer = firebase$1.storage().ref();
     class App extends I {
       render() {
         return L`

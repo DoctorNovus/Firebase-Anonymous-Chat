@@ -27,6 +27,8 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
+window.refer = firebase.storage().ref();
+
 /* Set Firebase Config and Initialize above this */
 
 export class App extends Component {

@@ -1,23 +1,19 @@
 import { Component, html } from "@exalt/core";
 
-import firebase from "firebase/app";
-import "firebase/analytics";
-import "firebase/storage";
-
 import style from "./post-display.css";
 
 import "@components/forum-post";
+import { DBManager } from "../../services/DBManager";
 
 export class PostDisplay extends Component {
-    refer = firebase.storage().ref();
-
     mode = "regular";
 
     state = {
         activePost: { name: "Template", timestamp: new Date(), content: "Template Message" },
         posts: [],
         secondPosts: [],
-        user: ""
+        user: "",
+        mode: "main"
     }
 
     render() {
@@ -27,37 +23,37 @@ export class PostDisplay extends Component {
             staff = "authorized";
 
         return html`
-            <div ${this.state.activePost.name != "Template" ? "" : "inactive" } id="display-post">
-                <forum-post ondelete=${()=> this.deletePost()} staff=${staff} onauthorized=${e => this.authorizePost(e)}
-                    posts=${this.state.posts} active="true"
-                    post=${this.state.activePost} onexit=${() =>
-                this.state.activePost = { name: "Template", timestamp: new Date(), content: "Template Message" }} />
-            </div>
-            <div ${this.state.activePost.name != "Template" ? "inactive" : "" } id="display-posts">
-                ${this.createCatalog()}
-            </div>
+        <div class="switcher">
+            <button ${staff=="authorized" ? "" : "invisible" } onclick=${() => { this.state.mode = this.state.mode == "main" ? "backend" : "main"; this.getPosts() }}>Switch to ${this.state.mode == "main" ? "Backend" : "Main"}</button>
+        </div>
+        <div ${this.state.activePost.name !="Template" ? "" : "inactive"} id="display-post">
+            <forum-post id="main" ondelete=${() => DBManager.remove(this.state.mode == "main" ? "messages.json" : "queueMessages.json", this.state.posts, this.state.activePost)} staff=${staff} onauthorized=${e => this.authorizePost(e)} posts=${this.state.posts} active="true" post=${this.state.activePost} onexit=${() => this.state.activePost = { name: "Template", timestamp: new Date(), content: "Template Message" }} />
+        </div>
+        <div ${this.state.activePost.name !="Template" ? "inactive" : ""} id="display-posts">
+            ${this.createCatalog()}
+        </div>
         `;
+    }
+
+    getPosts(path, callback) {
+        DBManager.get(`${path || this.state.mode == "main" ? "messages.json" : "queueMessages.json"}`).then((posts) => {
+            this.state.posts = posts;
+
+            if(callback)
+                callback(posts);
+        });
     }
 
     mount() {
         this.getPosts();
     }
 
-    setUser(user) {
-        this.state.user = user;
-        this.getPosts();
+    onUpdate() {
+        this.root.querySelector("#main").setMode(this.state.mode);
     }
 
-    deletePost() {
-        for (let i = 0; i < this.state.posts.length; i++) {
-            if (this.state.posts[i] == this.state.activePost) {
-                this.state.posts.splice(i, 1);
-            }
-        }
-
-        this.mode = "regular";
-        this.posts = this.state.posts;
-
+    setUser(user) {
+        this.state.user = user;
     }
 
     createCatalog() {
@@ -65,100 +61,36 @@ export class PostDisplay extends Component {
             <div class="megaPosts">
                 ${this.state.posts.map(p => this.createPost(p))}
             </div>
-            <forum-post type="catalog" onfinished=${(post)=> {
-                post.post.timestamp = new Date();
-            
-                this.state.posts.push(post.post);
-            
-                this.posts = this.state.posts;
-            
-                // window.location.reload();
-                }} />
+            <forum-post type="catalog" onfinished=${post=> this.finish(post)} />
         `;
+    }
+
+    finish(post) {
+        post = post.post;
+
+        post.timestamp = new Date();
+
+        DBManager.add("queueMessages.json", this.state.posts, post);
     }
 
     authorizePost(e) {
         if (e.toggle == true) {
-            this.getPosts(true);
+            this.getPosts("messages.json", (posts) => {
+                DBManager.add("messages.json", posts, this.state.activePost);
+            });
+
+            this.getPosts("queueMessages.json", (posts) => {
+                DBManager.remove("queueMessages.json", posts, this.state.activePost);
+            });
         } else {
-            for (let i = 0; i < this.state.posts.length; i++) {
-                if (this.state.posts[i].name == this.state.activePost.name && this.state.posts[i].timestamp.toString() == this.state.activePost.timestamp.toString()) {
-                    this.state.posts.splice(i, 1);
-                }
-            }
-    
-            this.mode = "auth";
-            this.posts = this.state.posts;
+            DBManager.remove("queueMessages.json", this.state.posts, this.state.activePost);
         }
-    }
-
-    authTwo() {
-        console.log(this.state.activePost);
-        
-        this.state.secondPosts.push(this.state.activePost);
-
-        this.mode = "regular";
-
-        this.posts = this.state.secondPosts;
-
-        for (let i = 0; i < this.state.posts.length; i++) {
-            if (this.state.posts[i].name == this.state.activePost.name && this.state.posts[i].timestamp.toString() == this.state.activePost.timestamp.toString()) {
-                this.state.posts.splice(i, 1);
-            }
-        }
-
-        this.mode = "auth";
-        this.posts = this.state.posts;
     }
 
     createPost(post) {
         return html`
-            <forum-post onclick=${() => this.state.activePost = post} post=${post} />
+            <forum-post onclick=${()=> this.state.activePost = post} post=${post} />
         `;
-    }
-
-    getPosts(second = false) {
-        let getter = "messages.json";
-
-        if (this.state.user != (null || ""))
-            getter = "queueMessages.json";
-
-        if (second)
-            getter = "messages.json";
-
-        let posts = this.refer.child(getter);
-        posts.getDownloadURL()
-            .then((url) => {
-                fetch(url).then(res => res.text()).then(data => {
-                    if (data.length <= 0)
-                        return;
-
-                    try {
-                        data = JSON.parse(data);
-                        if (second) {
-                            this.state.secondPosts = data;
-                            this.authTwo();
-                        }
-                        else
-                            this.state.posts = data;
-                    } catch (e) {
-                        console.log(e);
-                    }
-                })
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }
-
-    set posts(post) {
-        let getter = "queueMessages.json";
-
-        if (this.state.user != (null || "") && this.mode == "regular")
-            getter = "messages.json";
-
-        let posts = this.refer.child(getter);
-        posts.putString(JSON.stringify(post, 4, null));
     }
 }
 
