@@ -1,0 +1,18 @@
+{
+    "name": "firebase-anonymous-chat",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "exalt serve",
+        "build": "exalt build",
+        "start": "exalt start"
+    },
+    "dependencies": {
+        "@exalt/core": "^0.2.1",
+        "firebase": "^8.3.1"
+    },
+    "devDependencies": {
+        "@exalt/cli": "^0.1.3",
+        "@exalt/toolchain": "^0.1.6"
+    }
+}

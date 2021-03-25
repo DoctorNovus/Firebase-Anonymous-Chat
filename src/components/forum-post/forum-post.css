@@ -1,0 +1,103 @@
+:root {
+    --main-background: rgb(0, 0, 0);
+    --secondary-background: rgb(39, 39, 39);
+}
+
+.userPost {
+    width: auto;
+    margin: 0%;
+    padding: 0%;
+}
+
+.post {
+    background-color: rgb(25, 25, 25);
+    color: white;
+    margin: 5px;
+    width: fit-content;
+    padding: 5px;
+    border: 1px solid white;
+}
+
+.user {
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(40, 40, 40);
+}
+
+.user * {
+    margin: 0%;
+    padding: 0%;
+}
+
+.content p {
+    margin: 0%;
+    padding: 0%;
+}
+
+.comments[visible]{
+    display: flex;
+    flex-direction: column;
+}
+
+.comments[invisible] {
+    display: none;
+}
+
+.comments p {
+    color: white;
+}
+
+.userComment {
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(40, 40, 40);
+    margin: 7.5px;
+    padding: 7.5px;
+    border: 1px solid white;
+    width: fit-content
+}
+
+.userComment * {
+    margin: 0%;
+    padding: 0%;
+}
+
+.commentInput {
+    background-color: rgb(30, 30, 30);
+    width: fit-content;
+    word-wrap: normal;
+    margin: 8px;
+    padding: 7.5px;
+    color: white;
+}
+
+.commentInput::placeholder {
+    color: white;
+}
+
+.bind {
+    display: grid;
+    grid-template-columns: 10% 80% 10%;
+}
+
+.red {
+    color: red;
+}
+
+[invisible] {
+    display: none;
+}
+
+.userInput {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+}
+
+.userInput input, .userInput input::placeholder, .userInput button {
+    color: white;
+}
+
+.userInput input, .userInput button {
+    background-color: transparent;
+}

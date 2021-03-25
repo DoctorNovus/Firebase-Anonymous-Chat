@@ -1,0 +1,15 @@
+:host {
+    display: grid;
+    grid-template-columns: auto 30vw;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.31);
+    padding: 5px;
+}
+
+#login input {
+    width: 10vw;
+}
+
+#login button {
+    width: 7.5vw;
+}
