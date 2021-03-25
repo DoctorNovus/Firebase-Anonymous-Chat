@@ -11,6 +11,8 @@ export class ForumPost extends Component {
 
     exit = new Event("exit");
     finished = new Event("finished");
+    authorized = new Event("authorized");
+    delete = new Event("delete");
 
     render({ post, active, type = "regular" }) {
         if(type == "catalog")
@@ -33,12 +35,13 @@ export class ForumPost extends Component {
                             <h2>${post.name}</h2>
                             <span> </span>
                             <h2 ${active ? "visible" : "invisible"} class="red" onclick=${()=> this.dispatchEvent(this.exit)}>X</h2>
+                            ${active ? this.checkDelete() : ""}
                         </div>
                         <p>${new Date(post.timestamp).toUTCString()}</p>
                     </div>
                     <div class="content">
-                        <p>${active ? post.content : post.shortDescription || post.content ? post.content.substr(0, 20) + "..." :
-                            "No description"}</p>
+                        <p>${active ? post.content : post.shortDescription || post.content ? post.content.substr(0, 20) + "..." : "No description"}</p>
+                        ${active ? this.authorize() : ""}
                     </div>
                 </div>
             </div>
@@ -53,6 +56,31 @@ export class ForumPost extends Component {
             ${post.comments ? post.comments.map(c => this.renderComment(c)) : ""}
             ${this.getNewCommentInput()}
         `;
+    }
+
+    authorize(){
+        let mode = this.props.staff;
+
+        if(mode != (null || "")){
+            return html`
+                <div class="auth">
+                    <button onclick=${() => {this.authorized.toggle = false; this.dispatchEvent(this.authorized)}}>Deny</button>
+                    <button onclick=${() => {this.authorized.toggle = true; this.dispatchEvent(this.authorized)}}>Authorize</button>
+                </div>
+            `;
+        }
+    }
+
+    checkDelete(){
+        let mode = this.props.staff;
+
+        if(mode != (null || "")){
+            return html`
+                <div class="delete">
+                    <button onclick=${() => {this.delete.toggle = true; this.dispatchEvent(this.delete)}}>Delete</button>
+                </div>
+            `;
+        }
     }
 
     renderComment(comment) {

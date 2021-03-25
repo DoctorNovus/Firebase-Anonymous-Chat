@@ -10,6 +10,8 @@ export class LoginPanel extends Component {
         name: ""
     }
 
+    success = new Event("success");
+
     render() {
         return html`
             <span>${this.state.name == "" ? "Not logged in." : `Logged in as ${this.state.name}`}</span>
@@ -28,6 +30,10 @@ export class LoginPanel extends Component {
         firebase.auth().signInWithEmailAndPassword(email.value, pass.value)
             .then((userCredential) => {
                 let user = userCredential.user;
+
+                this.success.user = user;
+                this.dispatchEvent(this.success);
+
                 this.state.name = user.email;
             });
     }

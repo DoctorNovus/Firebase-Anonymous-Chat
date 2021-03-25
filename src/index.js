@@ -33,9 +33,13 @@ export class App extends Component {
 
     render() {
         return html`
-            <login-panel />
+            <login-panel onsuccess=${(e) => this.update(e)} />
             <post-display />
         `;
+    }
+
+    update(e){
+        this.root.querySelector("post-display").setUser(e.user);
     }
 }
 
